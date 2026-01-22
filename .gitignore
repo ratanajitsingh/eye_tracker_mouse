@@ -1,0 +1,19 @@
+# Python junk
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.env
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# OS junk
+.DS_Store
+Thumbs.db
