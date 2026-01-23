@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import pyautogui
 import numpy as np
+import time
 
 def main():
 
@@ -13,6 +14,8 @@ def main():
     padding = 215
     #smoothing variable, lower it is the fast the mouse is but the more jittery its movements. Higher, slower but smoother movements
     smoothing = 3
+    #sensitivity for blink to click - lower if its clicking when eyes are open, increase if it doesn't click even when you blink
+    blinky = 0.004
 
     #storing locations for smoothness prev location x,y and current location x,y
     prevl_x, prevl_y = 0,0
@@ -78,6 +81,15 @@ def main():
                     pyautogui.moveTo(curl_x, curl_y)
 
                     prevl_x, prevl_y = curl_x, curl_y
+
+            left_eye_top = landmarks[159]
+            left_eye_bottom = landmarks[145]
+
+            if (left_eye_bottom.y - left_eye_top.y) < blinky:
+                pyautogui.click()
+                print("click")
+                #sleeps after the click to prevent double-clicking since the loop is fast
+                time.sleep(0.5)
 
 
         cv2.imshow('eye controlled mouse', frame)
