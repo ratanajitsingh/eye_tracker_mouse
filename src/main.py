@@ -2,15 +2,20 @@ import cv2
 import mediapipe as mp
 import pyautogui
 
+
 def main():
 
     cam = cv2.VideoCapture(0)
 
+    face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks = True)
+
+    screen_w, screen_h = pyautogui.size()
+
     if not cam.isOpened():
-        print("Unable to open camera.")
+        print("cam not open")
         return
 
-    print("system ready, q to quit")
+    print("sys ready, q to quit")
 
     while True:
         ret, frame = cam.read()
@@ -19,7 +24,32 @@ def main():
 
         frame = cv2.flip(frame,1)
 
-        cv2.imshow('Eye controlled mouse', frame)
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        output = face_mesh.process(rgb_frame)
+
+        landmark_points = output.multi_face_landmarks
+        frame_h, frame_w, _ = frame.shape
+
+        if landmark_points:
+            landmarks = landmark_points[0].landmark
+
+
+            for id, landmark in enumerate(landmarks):
+
+                #474-478 left iris, 469-473 right iris
+                if id in range(474, 478) or id in range(469, 473):
+                    x = int(landmark.x * frame_w)
+                    y = int(landmark.y * frame_h)
+
+                    cv2.circle(frame, (x,y), 3, (0,255,255), -1)
+
+                #eyelid detection
+                if id in [145, 159]:
+                    x = int(landmark.x * frame_w)
+                    y = int(landmark.y * frame_h)
+                    cv2.circle(frame, (x,y), 3, (0,255,0), -1)
+
+        cv2.imshow('eye controlled mouse', frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -27,5 +57,8 @@ def main():
     cam.release()
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
+
+
+
