@@ -65,3 +65,4 @@ The exact variables can also be changed in the config area on the top of the 'sr
 Open source and available under the MIT license 
 
 ## Screenshots
+<img width="629" height="513" alt="image" src="https://github.com/user-attachments/assets/a0c5a84c-721d-4d03-bf55-6b9520059216" />
