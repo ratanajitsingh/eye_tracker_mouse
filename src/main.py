@@ -9,7 +9,16 @@ def main():
     face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks = True)
     screen_w, screen_h = pyautogui.size()
 
+    #box dimensions - adjust depending on the user and use case
     padding = 215
+    #smoothing variable, lower it is the fast the mouse is but the more jittery its movements. Higher, slower but smoother movements
+    smoothing = 3
+
+    #storing locations for smoothness prev location x,y and current location x,y
+    prevl_x, prevl_y = 0,0
+    curl_x, curl_y = 0,0
+
+
     pyautogui.FAILSAFE = False
 
     if not cam.isOpened():
@@ -23,6 +32,7 @@ def main():
         if not ret:
             break
 
+        #flipping camera
         frame = cv2.flip(frame,1)
         frame_h, frame_w, _ = frame.shape
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -58,9 +68,16 @@ def main():
                     y = int(landmark.y * frame_h)
 
                     #mapping camera coords to screen coords with padding for smoothness
-                    screen_x = np.interp(x, (padding, frame_w - padding), (0,screen_w))
-                    screen_y = np.interp(y, (padding, frame_h - padding), (0, screen_h))
-                    pyautogui.moveTo(screen_x, screen_y)
+                    target_x = np.interp(x, (padding, frame_w - padding), (0,screen_w))
+                    target_y = np.interp(y, (padding, frame_h - padding), (0, screen_h))
+
+                    #smoothing: current pos = previous + ( target - prev) / smoothing factor
+                    curl_x = prevl_x + (target_x - prevl_x) / smoothing
+                    curl_y = prevl_y + (target_y - prevl_y) / smoothing
+
+                    pyautogui.moveTo(curl_x, curl_y)
+
+                    prevl_x, prevl_y = curl_x, curl_y
 
 
         cv2.imshow('eye controlled mouse', frame)
